@@ -46,6 +46,8 @@ Backlog организован по приоритетам (P0-P3) и содер
 - ✅ Тесты запускаются успешно
 - ✅ Структура папок соответствует трехслойной архитектуре
 
+**GitHub Issue**: [#65](https://github.com/vovkins/agents-react-native-experiment-2/issues/65)
+
 ---
 
 ### US-002: Настройка навигации
@@ -64,6 +66,8 @@ Backlog организован по приоритетам (P0-P3) и содер
 - ✅ Навигация работает между экранами
 - ✅ Bottom Tab отображается корректно
 - ✅ Навигация типизирована в TypeScript
+
+**GitHub Issue**: [#66](https://github.com/vovkins/agents-react-native-experiment-2/issues/66)
 
 ---
 
@@ -85,6 +89,8 @@ Backlog организован по приоритетам (P0-P3) и содер
 - ✅ Тема применяется ко всему приложению
 - ✅ Базовые компоненты созданы и работают
 
+**GitHub Issue**: [#67](https://github.com/vovkins/agents-react-native-experiment-2/issues/67)
+
 ---
 
 ### US-004: Настройка State Management
@@ -103,6 +109,8 @@ Backlog организован по приоритетам (P0-P3) и содер
 - ✅ Stores созданы для каждой доменной области
 - ✅ Persist работает корректно
 - ✅ Dev tools работают
+
+**GitHub Issue**: [#68](https://github.com/vovkins/agents-react-native-experiment-2/issues/68)
 
 ---
 
@@ -1080,18 +1088,20 @@ Backlog организован по приоритетам (P0-P3) и содер
 - ✅ Build загружается в TestFlight/Internal Test
 - ✅ Versioning автоматический
 
+**GitHub Issue**: [#69](https://github.com/vovkins/agents-react-native-experiment-2/issues/69)
+
 ---
 
 ## Приоритизированный список задач (Summary)
 
 ### Sprint 1-2: Foundation (Weeks 1-4)
-1. US-001: Инициализация проекта - **P0**
-2. US-002: Настройка навигации - **P0**
-3. US-003: Настройка UI Kit и стилей - **P0**
-4. US-004: Настройка State Management - **P0**
+1. US-001: Инициализация проекта - **P0** - Issue [#65]
+2. US-002: Настройка навигации - **P0** - Issue [#66]
+3. US-003: Настройка UI Kit и стилей - **P0** - Issue [#67]
+4. US-004: Настройка State Management - **P0** - Issue [#68]
 5. US-005: Создание Domain Entities - **P0**
 6. US-006: Создание Repository Interfaces - **P0**
-7. US-050: Настройка CI/CD - **P0**
+7. US-050: Настройка CI/CD - **P0** - Issue [#69]
 
 ### Sprint 3-4: Core Features (Weeks 5-8)
 8. US-008: Настройка API Client - **P0**
