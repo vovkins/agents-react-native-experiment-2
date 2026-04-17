@@ -2,66 +2,55 @@
 
 ## 1. Overview
 
-**Project:** Mobile Application for Investment Management Company Clients  
-**Platform:** React Native (iOS + Android)  
-**Architecture Pattern:** Clean Architecture (3-Layer)  
-**Version:** 1.0  
-**Date:** 2026-04-17  
+### 1.1 System Purpose
+
+The Investment Management Mobile Application is a cross-platform mobile application designed for clients of an investment management company (управляющая компания). The system enables high-net-worth investors to:
+
+- **View investment products**: Browse strategies and individual trust management offerings
+- **Monitor portfolio**: Track assets under management in real-time
+- **Communicate with managers**: Chat directly with personal portfolio managers
+
+### 1.2 System Goals
+
+| Goal | Description | Priority |
+|------|-------------|----------|
+| **Security** | Protect sensitive financial and personal data | Critical |
+| **Performance** | Fast, responsive user experience | High |
+| **Reliability** | Consistent operation with offline support | High |
+| **Usability** | Intuitive interface for non-technical users | High |
+| **Maintainability** | Clean architecture for easy updates | Medium |
+
+### 1.3 Key Stakeholders
+
+| Stakeholder | Role | Interest |
+|-------------|------|----------|
+| **Client Users** | End users | View portfolio, communicate with manager, browse products |
+| **Portfolio Managers** | Company employees | Communicate with clients, manage relationships |
+| **Investment Company** | Service provider | Deliver mobile experience to clients |
+| **Development Team** | Builders | Implement and maintain the system |
+| **Operations Team** | Support | Deploy, monitor, and support the application |
+
+### 1.4 Scope
+
+**In Scope (MVP):**
+- Authentication with biometric support and PIN
+- Product showcase (strategies and products)
+- Portfolio dashboard with positions
+- Real-time chat with personal manager
+- Push notifications
+- Offline data caching
+
+**Out of Scope:**
+- Self-registration (clients are pre-onboarded)
+- Trading/transaction execution
+- File attachments in chat
+- Multiple conversations per client
 
 ---
 
-## 2. Architecture Pattern Selection
+## 2. Architecture Diagrams (C4 Model)
 
-### 2.1 Chosen Pattern: Clean Architecture
-
-We adopt **Clean Architecture** with three distinct layers, as specified in the PRD requirements. This pattern was chosen for the following reasons:
-
-| Criteria | Clean Architecture | Assessment |
-|----------|-------------------|------------|
-| **Separation of Concerns** | Strict layer boundaries | ✅ Excellent |
-| **Testability** | Domain layer has no dependencies | ✅ Excellent |
-| **Maintainability** | Changes isolated to specific layers | ✅ Excellent |
-| **Scalability** | Modular, can grow with features | ✅ Good |
-| **Learning Curve** | Requires discipline | ⚠️ Moderate |
-
-### 2.2 Layer Definition
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        VIEW LAYER                                │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
-│  │  Screens    │  │ Components  │  │ Navigation  │              │
-│  └─────────────┘  └─────────────┘  └─────────────┘              │
-│  ┌─────────────┐  ┌─────────────┐                                 │
-│  │   Hooks    │  │State Stores │                                 │
-│  └─────────────┘  └─────────────┘                                 │
-├─────────────────────────────────────────────────────────────────┤
-│                       DOMAIN LAYER                               │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
-│  │  Entities   │  │  Services   │  │  Use Cases  │              │
-│  └─────────────┘  └─────────────┘  └─────────────┘              │
-│  ┌─────────────┐                                                  │
-│  │   Utils     │                                                  │
-│  └─────────────┘                                                  │
-├─────────────────────────────────────────────────────────────────┤
-│                       ADAPTER LAYER                              │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
-│  │  API Adapters│ │ WebSocket   │  │   Storage   │              │
-│  └─────────────┘  └─────────────┘  └─────────────┘              │
-│  ┌─────────────┐  ┌─────────────┐                                 │
-│  │  External   │  │  Platform   │                                 │
-│  └─────────────┘  └─────────────┘                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**Dependencies flow inward:** View → Domain ← Adapters  
-**Domain layer has ZERO external dependencies** (pure TypeScript/JavaScript)
-
----
-
-## 3. C4 Model Diagrams
-
-### 3.1 Context Diagram (Level 1)
+### 2.1 Context Diagram (Level 1)
 
 Shows the system in its environment with users and external systems.
 
@@ -94,9 +83,15 @@ graph TB
     style Backend fill:#E5A84D,stroke:#B8843A,color:#fff
 ```
 
-### 3.2 Container Diagram (Level 2)
+**Context Description:**
+- **Client Users** interact with the mobile app to view their investments, browse products, and chat with their manager
+- **Portfolio Managers** communicate with clients through the backend system
+- **Backend API Server** provides all business logic, data storage, and real-time communication infrastructure
+- **Push Notification Services** (APNs/FCM) deliver alerts for messages and portfolio updates
 
-Shows the high-level containers within the system.
+### 2.2 Container Diagram (Level 2)
+
+Shows the high-level containers within the mobile application.
 
 ```mermaid
 graph TB
@@ -104,7 +99,7 @@ graph TB
         subgraph "View Layer"
             Screens[Screens<br/>React Components]
             Nav[Navigation<br/>React Navigation]
-            UI[UI Components<br/>shadcn/ui]
+            UI[UI Components<br/>shadcn/ui + NativeWind]
         end
         
         subgraph "Domain Layer"
@@ -116,13 +111,20 @@ graph TB
         subgraph "Adapter Layer"
             APIAdapters[API Adapters<br/>Axios/Fetch]
             WSAdapter[WebSocket Adapter<br/>Socket.io]
-            StorageAdapter[Storage Adapter<br/>Realm/MMKV]
+            StorageAdapter[Storage Adapter<br/>WatermelonDB/MMKV]
             PlatformAdapter[Platform Adapter<br/>Native Modules]
         end
         
         subgraph "State Management"
             Zustand[Zustand Stores<br/>Auth, Portfolio, Chat]
         end
+    end
+    
+    subgraph "External"
+        BackendAPI[Backend REST API]
+        WebSocketServer[WebSocket Server]
+        SecureStorage[iOS Keychain<br/>Android Keystore]
+        LocalDB[WatermelonDB]
     end
     
     Screens --> Zustand
@@ -136,19 +138,35 @@ graph TB
     Services --> StorageAdapter
     Services --> PlatformAdapter
     
+    APIAdapters --> BackendAPI
+    WSAdapter --> WebSocketServer
+    StorageAdapter --> SecureStorage
+    StorageAdapter --> LocalDB
+    
     style Screens fill:#6BB5E0,stroke:#4A8BC4,color:#fff
     style Entities fill:#7BC47F,stroke:#5BA05F,color:#fff
     style APIAdapters fill:#E5A84D,stroke:#B8843A,color:#fff
     style Zustand fill:#B57BC4,stroke:#8F5A9F,color:#fff
 ```
 
-### 3.3 Component Diagram (Level 3)
+**Container Descriptions:**
+
+| Container | Technology | Description |
+|-----------|------------|-------------|
+| **View Layer** | React Native, TypeScript | UI components, screens, navigation |
+| **Domain Layer** | TypeScript | Pure business logic, no external dependencies |
+| **Adapter Layer** | Axios, Socket.io, Native modules | External system integrations |
+| **State Management** | Zustand | Global application state |
+| **Secure Storage** | iOS Keychain / Android Keystore | Token and credential storage |
+| **Local Database** | WatermelonDB | Offline data persistence |
+
+### 2.3 Component Diagram (Level 3)
 
 Detailed component breakdown for each major module.
 
 ```mermaid
 graph TB
-    subgraph "View Layer Components"
+    subgraph "View Layer"
         subgraph "Authentication Module"
             LoginScreen[Login Screen]
             PINScreen[PIN Screen]
@@ -176,7 +194,7 @@ graph TB
         end
     end
     
-    subgraph "Domain Layer Services"
+    subgraph "Domain Layer"
         AuthService[Auth Service]
         ProductService[Product Service]
         PortfolioService[Portfolio Service]
@@ -196,11 +214,15 @@ graph TB
     end
     
     LoginScreen --> AuthService
+    PINScreen --> AuthService
+    BiometricPrompt --> AuthService
     ProductListScreen --> ProductService
     ProductDetailScreen --> ProductService
     PortfolioScreen --> PortfolioService
     PositionDetailScreen --> PortfolioService
     ChatScreen --> ChatService
+    MessageList --> ChatService
+    MessageInput --> ChatService
     
     AuthService --> AuthAdapter
     AuthService --> TokenStorage
@@ -213,690 +235,230 @@ graph TB
     SyncService --> ProductAdapter
     SyncService --> PortfolioAdapter
     SyncService --> ChatAdapter
+    
+    style LoginScreen fill:#6BB5E0,stroke:#4A8BC4,color:#fff
+    style AuthService fill:#7BC47F,stroke:#5BA05F,color:#fff
+    style AuthAdapter fill:#E5A84D,stroke:#B8843A,color:#fff
 ```
 
 ---
 
-## 4. Layer Details
+## 3. Components
 
-### 4.1 View Layer
+### 3.1 Frontend (React Native Mobile App)
 
-The View Layer contains all UI-related code and has NO direct contact with external systems.
+#### 3.1.1 View Layer
 
-| Component | Responsibility | Dependencies |
-|-----------|---------------|--------------|
-| **Screens** | Page-level components, orchestrate UI | Stores, Hooks |
-| **Components** | Reusable UI elements | Props only |
-| **Navigation** | Screen routing, deep links | React Navigation |
-| **Hooks** | UI-specific logic, event handlers | Stores, Services |
-| **Stores** | UI state, view models | Domain Services |
+**Purpose:** Render UI, handle user interactions, manage UI state.
 
-**View Layer Structure:**
-```
-src/view/
-├── screens/
-│   ├── auth/
-│   │   ├── LoginScreen.tsx
-│   │   ├── PINScreen.tsx
-│   │   └── BiometricSetupScreen.tsx
-│   ├── products/
-│   │   ├── ProductListScreen.tsx
-│   │   └── ProductDetailScreen.tsx
-│   ├── portfolio/
-│   │   ├── PortfolioOverviewScreen.tsx
-│   │   └── PositionDetailScreen.tsx
-│   ├── chat/
-│   │   ├── ChatScreen.tsx
-│   │   └── ConversationListScreen.tsx
-│   └── profile/
-│       ├── ProfileScreen.tsx
-│       └── SettingsScreen.tsx
-├── components/
-│   ├── common/
-│   │   ├── Button.tsx
-│   │   ├── Input.tsx
-│   │   ├── Card.tsx
-│   │   └── Skeleton.tsx
-│   ├── products/
-│   │   ├── StrategyCard.tsx
-│   │   └── CategoryFilter.tsx
-│   ├── portfolio/
-│   │   ├── PositionCard.tsx
-│   │   ├── ValueDisplay.tsx
-│   │   └── MetricCard.tsx
-│   └── chat/
-│       ├── MessageBubble.tsx
-│       ├── MessageInput.tsx
-│       └── StatusIndicator.tsx
-├── navigation/
-│   ├── AppNavigator.tsx
-│   ├── AuthNavigator.tsx
-│   └── TabNavigator.tsx
-└── hooks/
-    ├── useAuth.ts
-    ├── useProducts.ts
-    ├── usePortfolio.ts
-    └── useChat.ts
-```
+| Component | Description | Key Features |
+|-----------|-------------|--------------|
+| **Screens** | Page-level components | Navigation integration, data loading |
+| **Components** | Reusable UI elements | Props-driven, memoized for performance |
+| **Navigation** | Screen routing | React Navigation 6.x, deep linking |
+| **Hooks** | UI-specific logic | Custom hooks for data fetching, events |
 
-### 4.2 Domain Layer
+**View Layer Dependencies:**
+- React Navigation (routing)
+- NativeWind (styling)
+- shadcn/ui (component library)
+- React Native Reanimated (animations)
 
-The Domain Layer is the **heart of the application**. It contains pure business logic with NO external dependencies.
+#### 3.1.2 Domain Layer
 
-| Component | Responsibility | Dependencies |
-|-----------|---------------|--------------|
-| **Entities** | Core business objects, types | None |
-| **Services** | Business logic, calculations | Entities |
-| **Use Cases** | Orchestrate complex flows | Services, Entities |
-| **Utils** | Helper functions, formatters | None |
+**Purpose:** Encapsulate business logic, define entities, coordinate use cases.
 
-**Domain Layer Structure:**
-```
-src/domain/
-├── entities/
-│   ├── User.ts
-│   ├── AuthTokens.ts
-│   ├── Product.ts
-│   ├── Strategy.ts
-│   ├── Portfolio.ts
-│   ├── Position.ts
-│   ├── Message.ts
-│   └── Conversation.ts
-├── services/
-│   ├── AuthService.ts
-│   ├── ProductService.ts
-│   ├── PortfolioService.ts
-│   ├── ChatService.ts
-│   ├── SyncService.ts
-│   └── NotificationService.ts
-├── usecases/
-│   ├── LoginUseCase.ts
-│   ├── RefreshTokenUseCase.ts
-│   ├── LoadProductDetailUseCase.ts
-│   ├── CalculatePortfolioMetricsUseCase.ts
-│   └── SendMessageUseCase.ts
-├── calculators/
-│   ├── PortfolioCalculator.ts
-│   └── ReturnsCalculator.ts
-└── utils/
-    ├── formatters.ts
-    ├── validators.ts
-    └── dateUtils.ts
-```
+| Component | Description | Responsibility |
+|-----------|-------------|----------------|
+| **Entities** | Domain models | Define data structures and validation |
+| **Services** | Business logic | Coordinate operations, enforce rules |
+| **Use Cases** | Orchestrators | Coordinate complex workflows |
+| **Calculators** | Financial math | Portfolio metrics, returns calculations |
 
-### 4.3 Adapter Layer
+**Domain Layer Principles:**
+- Zero external dependencies (pure TypeScript)
+- Single responsibility per service
+- Interface-based dependency injection
+- Comprehensive unit testing
 
-The Adapter Layer handles all external communication and implements interfaces defined by the Domain layer.
+#### 3.1.3 Adapter Layer
 
-| Component | Responsibility | Dependencies |
-|-----------|---------------|--------------|
-| **API Adapters** | HTTP communication | Axios/Fetch |
-| **WebSocket Adapter** | Real-time communication | Socket.io |
-| **Storage Adapter** | Local persistence | Realm/MMKV/SQLite |
-| **Platform Adapter** | Native features | Native modules |
+**Purpose:** Interface with external systems, implement domain interfaces.
 
-**Adapter Layer Structure:**
-```
-src/adapters/
-├── api/
-│   ├── ApiClient.ts
-│   ├── AuthAdapter.ts
-│   ├── ProductAdapter.ts
-│   ├── PortfolioAdapter.ts
-│   └── ChatAdapter.ts
-├── websocket/
-│   ├── WebSocketClient.ts
-│   └── ChatWebSocketAdapter.ts
-├── storage/
-│   ├── SecureStorageAdapter.ts
-│   ├── CacheAdapter.ts
-│   └── MessageStorageAdapter.ts
-├── platform/
-│   ├── BiometricAdapter.ts
-│   ├── NetworkAdapter.ts
-│   └── NotificationAdapter.ts
-└── types/
-    ├── ApiTypes.ts
-    ├── WebSocketTypes.ts
-    └── StorageTypes.ts
-```
+| Adapter | Purpose | Technology |
+|---------|---------|------------|
+| **AuthAdapter** | Authentication API calls | Axios |
+| **ProductAdapter** | Product catalog API | Axios |
+| **PortfolioAdapter** | Portfolio data API | Axios |
+| **ChatAdapter** | Chat REST API | Axios |
+| **WebSocketAdapter** | Real-time communication | Socket.io |
+| **TokenStorage** | Secure token storage | Keychain/Keystore |
+| **MessageStorage** | Local message persistence | WatermelonDB |
+| **BiometricAdapter** | Face ID / Touch ID | react-native-biometrics |
+| **NetworkAdapter** | Connectivity monitoring | NetInfo |
+
+### 3.2 Backend (Node.js)
+
+**Note:** Backend is out of scope for this document but assumed to exist.
+
+| Service | Description | Technology |
+|---------|-------------|------------|
+| **API Gateway** | REST API endpoints | Node.js + Express/Fastify |
+| **Auth Service** | Authentication, tokens | JWT, OAuth 2.0 |
+| **Product Service** | Product catalog | REST API |
+| **Portfolio Service** | Client portfolios | REST API |
+| **Chat Service** | Messaging, WebSocket | Socket.io, REST |
+| **Database** | Data persistence | PostgreSQL |
+
+### 3.3 Database (Local)
+
+**WatermelonDB Schema:**
+
+| Table | Purpose | Key Fields |
+|-------|---------|------------|
+| **products** | Cached product data | id, name, category, data |
+| **categories** | Product categories | id, name, order |
+| **portfolio** | Portfolio summary | id, userId, totalValue |
+| **positions** | Portfolio positions | id, assetId, quantity, value |
+| **messages** | Chat messages | id, conversationId, text, timestamp |
+| **conversations** | Chat conversations | id, participantId, lastMessageAt |
+
+### 3.4 External Services
+
+| Service | Purpose | Integration |
+|---------|---------|-------------|
+| **APNs** | iOS push notifications | @react-native-firebase/messaging |
+| **FCM** | Android push notifications | @react-native-firebase/messaging |
+| **Backend API** | Business logic, data | REST + WebSocket |
+| **Analytics** | Usage tracking (optional) | Firebase Analytics |
+| **Crash Reporting** | Error tracking | Sentry / Crashlytics |
 
 ---
 
-## 5. State Management Design
+## 4. Data Model
 
-### 5.1 Chosen Solution: Zustand
-
-After evaluating options, **Zustand** is selected for state management:
-
-| Criteria | Zustand | Redux Toolkit | MobX |
-|----------|---------|---------------|------|
-| **Bundle size** | ~1KB | ~11KB | ~16KB |
-| **Learning curve** | Low | Medium | Medium |
-| **Boilerplate** | Minimal | Moderate | Minimal |
-| **TypeScript support** | Excellent | Good | Good |
-| **DevTools** | Good | Excellent | Good |
-| **Performance** | Excellent | Good | Good |
-
-### 5.2 Store Architecture
+### 4.1 Entity Relationship Diagram
 
 ```mermaid
-graph TB
-    subgraph "State Stores"
-        AuthStore[Auth Store<br/>isAuthenticated, user, tokens]
-        ProductStore[Product Store<br/>products, categories, filters]
-        PortfolioStore[Portfolio Store<br/>portfolio, positions, metrics]
-        ChatStore[Chat Store<br/>messages, conversations, status]
-        SyncStore[Sync Store<br/>lastSync, pending, status]
-        UIStore[UI Store<br/>theme, loading, modals]
-    end
+erDiagram
+    User ||--o{ Portfolio : owns
+    User ||--o{ Conversation : participates
+    User ||--o| Manager : "assigned to"
     
-    subgraph "Persistence"
-        SecureStorage[Secure Storage<br/>Tokens, PIN]
-        LocalCache[Local Cache<br/>Products, Portfolio]
-        MessageDB[Message DB<br/>Chat History]
-    end
+    Portfolio ||--o{ Position : contains
     
-    AuthStore --> SecureStorage
-    ProductStore --> LocalCache
-    PortfolioStore --> LocalCache
-    ChatStore --> MessageDB
-    SyncStore --> LocalCache
+    Product ||--o| Category : "belongs to"
+    Product ||--o{ ProductParameter : has
+    Product ||--o{ ProductCondition : has
+    
+    Conversation ||--o{ Message : contains
+    
+    User {
+        string id PK
+        string email UK
+        string firstName
+        string lastName
+        string phone
+        string managerId FK
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    Portfolio {
+        string id PK
+        string userId FK
+        number totalValue
+        string currency
+        number change24h
+        number changePercent24h
+        datetime lastUpdated
+    }
+    
+    Position {
+        string id PK
+        string portfolioId FK
+        string assetId
+        string assetName
+        string assetSymbol
+        string assetType
+        number quantity
+        number averagePrice
+        number currentPrice
+        number currentValue
+        number profitLoss
+        number profitLossPercent
+        number weight
+    }
+    
+    Product {
+        string id PK
+        string name
+        string description
+        string categoryId FK
+        string type
+        string riskLevel
+        number minimumInvestment
+        string currency
+        number expectedReturn
+        number historicalReturn
+    }
+    
+    Category {
+        string id PK
+        string name
+        string description
+        number order
+        number productCount
+    }
+    
+    ProductParameter {
+        string id PK
+        string productId FK
+        string name
+        string value
+        string unit
+    }
+    
+    ProductCondition {
+        string id PK
+        string productId FK
+        string name
+        string description
+    }
+    
+    Conversation {
+        string id PK
+        string userId FK
+        string participantId
+        string participantName
+        number unreadCount
+        datetime updatedAt
+    }
+    
+    Message {
+        string id PK
+        string conversationId FK
+        string senderId
+        string senderType
+        string text
+        datetime timestamp
+        string status
+    }
+    
+    Manager {
+        string id PK
+        string email
+        string firstName
+        string lastName
+        string status
+        datetime lastSeen
+    }
 ```
 
-### 5.3 Store Definitions
+### 4.2 Domain Entity Definitions
 
+#### User Entity
 ```typescript
-// Auth Store
-interface AuthState {
-  isAuthenticated: boolean;
-  user: User | null;
-  tokens: AuthTokens | null;
-  loading: boolean;
-  error: string | null;
-  
-  // Actions
-  login: (credentials: Credentials) => Promise<void>;
-  logout: () => Promise<void>;
-  refreshTokens: () => Promise<void>;
-  setUser: (user: User) => void;
-  clearError: () => void;
-}
-
-// Product Store
-interface ProductState {
-  products: Product[];
-  categories: Category[];
-  selectedProduct: Product | null;
-  filters: ProductFilters;
-  loading: boolean;
-  error: string | null;
-  
-  // Actions
-  fetchProducts: () => Promise<void>;
-  fetchProductDetail: (id: string) => Promise<void>;
-  setFilters: (filters: ProductFilters) => void;
-  clearFilters: () => void;
-}
-
-// Portfolio Store
-interface PortfolioState {
-  portfolio: Portfolio | null;
-  positions: Position[];
-  metrics: PortfolioMetrics | null;
-  loading: boolean;
-  error: string | null;
-  lastUpdated: Date | null;
-  
-  // Actions
-  fetchPortfolio: () => Promise<void>;
-  fetchPositions: () => Promise<void>;
-  calculateMetrics: () => void;
-}
-
-// Chat Store
-interface ChatState {
-  conversations: Conversation[];
-  activeConversation: Conversation | null;
-  messages: Message[];
-  managerStatus: ManagerStatus;
-  unreadCount: number;
-  loading: boolean;
-  sending: boolean;
-  error: string | null;
-  
-  // Actions
-  fetchMessages: (conversationId: string) => Promise<void>;
-  sendMessage: (text: string) => Promise<void>;
-  markAsRead: (messageIds: string[]) => void;
-  addMessage: (message: Message) => void;
-  updateManagerStatus: (status: ManagerStatus) => void;
-}
-
-// Sync Store
-interface SyncState {
-  lastSync: Date | null;
-  syncStatus: 'idle' | 'syncing' | 'error' | 'offline';
-  pendingOperations: PendingOperation[];
-  
-  // Actions
-  sync: () => Promise<void>;
-  addToQueue: (operation: PendingOperation) => void;
-  processQueue: () => Promise<void>;
-  setSyncStatus: (status: SyncStatus) => void;
-}
-```
-
-### 5.4 State Flow Diagram
-
-```mermaid
-sequenceDiagram
-    participant UI as UI Component
-    participant Store as Zustand Store
-    participant Service as Domain Service
-    participant Adapter as API Adapter
-    participant API as Backend API
-    
-    UI->>Store: Call action
-    Store->>Store: Set loading = true
-    Store->>Service: Execute business logic
-    Service->>Adapter: Make API call
-    Adapter->>API: HTTP Request
-    API-->>Adapter: Response
-    Adapter-->>Service: Parsed data
-    Service-->>Store: Domain entities
-    Store->>Store: Update state
-    Store->>Store: Set loading = false
-    Store-->>UI: Re-render with new state
-```
-
----
-
-## 6. Data Flow Design
-
-### 6.1 Unidirectional Data Flow
-
-The application follows a strict unidirectional data flow pattern:
-
-```mermaid
-graph LR
-    Action[User Action] --> Store[State Store]
-    Store --> Service[Domain Service]
-    Service --> Adapter[Adapter]
-    Adapter --> External[External System]
-    External --> Adapter
-    Adapter --> Service
-    Service --> Store
-    Store --> UI[UI Update]
-```
-
-### 6.2 Authentication Flow
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant LoginScreen
-    participant AuthStore
-    participant AuthService
-    participant AuthAdapter
-    participant TokenStorage
-    
-    User->>LoginScreen: Enter credentials
-    LoginScreen->>AuthStore: login(credentials)
-    AuthStore->>AuthStore: Set loading = true
-    AuthStore->>AuthService: authenticate(credentials)
-    AuthService->>AuthService: Validate credentials
-    AuthService->>AuthAdapter: login(credentials)
-    AuthAdapter->>AuthAdapter: POST /auth/login
-    AuthAdapter-->>AuthService: AuthTokens
-    AuthService->>TokenStorage: storeTokens(tokens)
-    AuthService-->>AuthStore: AuthTokens + User
-    AuthStore->>AuthStore: Set isAuthenticated = true
-    AuthStore-->>LoginScreen: Navigate to main app
-```
-
-### 6.3 Product Browsing Flow
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant ProductList
-    participant ProductStore
-    participant ProductService
-    participant ProductAdapter
-    participant Cache
-    
-    User->>ProductList: Open products tab
-    ProductList->>ProductStore: fetchProducts()
-    ProductStore->>ProductStore: Set loading = true
-    
-    alt Cache available
-        ProductStore->>Cache: getCachedProducts()
-        Cache-->>ProductStore: Cached products
-        ProductStore->>ProductList: Render cached data
-    end
-    
-    ProductStore->>ProductService: loadProducts()
-    ProductService->>ProductAdapter: getProducts()
-    ProductAdapter-->>ProductService: Product[]
-    ProductService-->>ProductStore: Domain products
-    ProductStore->>Cache: cacheProducts(products)
-    ProductStore->>ProductList: Render fresh data
-```
-
-### 6.4 Portfolio Data Flow
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant PortfolioScreen
-    participant PortfolioStore
-    participant PortfolioService
-    participant PortfolioAdapter
-    participant Calculator
-    
-    User->>PortfolioScreen: Open portfolio tab
-    PortfolioScreen->>PortfolioStore: fetchPortfolio()
-    PortfolioStore->>PortfolioService: loadPortfolio()
-    PortfolioService->>PortfolioAdapter: getPortfolio()
-    PortfolioAdapter-->>PortfolioService: Portfolio data
-    PortfolioService->>Calculator: calculateMetrics(portfolio)
-    Calculator-->>PortfolioService: PortfolioMetrics
-    PortfolioService-->>PortfolioStore: Portfolio + Metrics
-    PortfolioStore-->>PortfolioScreen: Render portfolio
-```
-
-### 6.5 Chat Message Flow (Real-time)
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant ChatScreen
-    participant ChatStore
-    participant ChatService
-    participant ChatAdapter
-    participant WebSocket
-    participant MessageDB
-    
-    User->>ChatScreen: Type message
-    User->>ChatScreen: Press send
-    ChatScreen->>ChatStore: sendMessage(text)
-    
-    Note over ChatStore: Optimistic update
-    ChatStore->>ChatStore: Add message (status: sending)
-    ChatStore->>ChatScreen: Immediate render
-    
-    ChatStore->>ChatService: send(message)
-    ChatService->>ChatAdapter: sendMessage(message)
-    
-    alt WebSocket connected
-        ChatAdapter->>WebSocket: emit('message', payload)
-        WebSocket-->>ChatAdapter: ack
-    else WebSocket disconnected
-        ChatAdapter->>ChatAdapter: Queue message
-        ChatAdapter->>MessageDB: Store pending
-    end
-    
-    ChatAdapter-->>ChatService: MessageSent
-    ChatService-->>ChatStore: Update status (sent)
-    
-    Note over WebSocket: Manager replies
-    WebSocket->>ChatAdapter: onMessage(received)
-    ChatAdapter->>ChatService: handleNewMessage
-    ChatService->>MessageDB: Store message
-    ChatService->>ChatStore: addMessage(message)
-    ChatStore->>ChatScreen: Render new message
-```
-
-### 6.6 Offline Sync Flow
-
-```mermaid
-sequenceDiagram
-    participant App
-    participant SyncStore
-    participant SyncService
-    participant NetworkAdapter
-    participant QueueStorage
-    
-    Note over App: Network disconnects
-    App->>NetworkAdapter: onDisconnect()
-    NetworkAdapter->>SyncStore: setSyncStatus('offline')
-    
-    Note over App: User sends message
-    App->>SyncStore: sendMessage()
-    SyncStore->>QueueStorage: addToQueue(operation)
-    SyncStore->>App: Show pending indicator
-    
-    Note over App: Network reconnects
-    App->>NetworkAdapter: onConnect()
-    NetworkAdapter->>SyncStore: setSyncStatus('syncing')
-    SyncStore->>SyncService: sync()
-    
-    SyncService->>QueueStorage: getPendingOperations()
-    QueueStorage-->>SyncService: Pending ops
-    
-    loop For each operation
-        SyncService->>SyncService: processOperation(op)
-        SyncService->>QueueStorage: removeOperation(op)
-    end
-    
-    SyncService-->>SyncStore: syncComplete()
-    SyncStore->>SyncStore: setSyncStatus('idle')
-```
-
----
-
-## 7. Component Boundaries
-
-### 7.1 Module Boundaries
-
-Each module has clear boundaries and communication interfaces:
-
-```mermaid
-graph TB
-    subgraph "Authentication Module"
-        AuthView[View: Login, PIN, Biometric UI]
-        AuthDomain[Domain: Auth Logic, Session]
-        AuthAdapter[Adapter: Auth API, Token Storage]
-    end
-    
-    subgraph "Product Module"
-        ProdView[View: Product List, Detail]
-        ProdDomain[Domain: Products, Categories]
-        ProdAdapter[Adapter: Products API]
-    end
-    
-    subgraph "Portfolio Module"
-        PortView[View: Portfolio, Positions]
-        PortDomain[Domain: Portfolio, Metrics]
-        PortAdapter[Adapter: Portfolio API]
-    end
-    
-    subgraph "Chat Module"
-        ChatView[View: Chat, Messages]
-        ChatDomain[Domain: Messages, Conversations]
-        ChatAdapter[Adapter: Chat API, WebSocket]
-    end
-    
-    AuthDomain --> AuthView
-    AuthAdapter --> AuthDomain
-    
-    ProdDomain --> ProdView
-    ProdAdapter --> ProdDomain
-    
-    PortDomain --> PortView
-    PortAdapter --> PortDomain
-    
-    ChatDomain --> ChatView
-    ChatAdapter --> ChatDomain
-    
-    AuthDomain -.->|Auth Token| ProdAdapter
-    AuthDomain -.->|Auth Token| PortAdapter
-    AuthDomain -.->|Auth Token| ChatAdapter
-```
-
-### 7.2 Dependency Rules
-
-| From | To | Allowed? | Reason |
-|------|-----|----------|--------|
-| View | Domain | ✅ Yes | View depends on domain for logic |
-| View | Adapters | ❌ No | View should not know about adapters |
-| Domain | View | ❌ No | Domain has no UI knowledge |
-| Domain | Adapters | ❌ No | Domain defines interfaces, adapters implement |
-| Adapters | Domain | ✅ Yes | Adapters implement domain interfaces |
-| Adapters | View | ❌ No | Adapters have no UI knowledge |
-
-### 7.3 Interface Contracts
-
-```typescript
-// Domain defines interfaces (ports)
-interface IAuthAdapter {
-  login(credentials: Credentials): Promise<AuthTokens>;
-  logout(): Promise<void>;
-  refreshToken(refreshToken: string): Promise<AuthTokens>;
-}
-
-interface IProductAdapter {
-  getProducts(): Promise<Product[]>;
-  getProductDetail(id: string): Promise<Product>;
-  getCategories(): Promise<Category[]>;
-}
-
-interface IPortfolioAdapter {
-  getPortfolio(): Promise<Portfolio>;
-  getPositions(): Promise<Position[]>;
-  getPositionDetail(id: string): Promise<Position>;
-}
-
-interface IChatAdapter {
-  getMessages(conversationId: string, cursor?: string): Promise<Message[]>;
-  sendMessage(message: NewMessage): Promise<Message>;
-  markAsRead(messageIds: string[]): Promise<void>;
-}
-
-interface IStorageAdapter {
-  get<T>(key: string): Promise<T | null>;
-  set<T>(key: string, value: T): Promise<void>;
-  remove(key: string): Promise<void>;
-  clear(): Promise<void>;
-}
-
-interface IWebSocketAdapter {
-  connect(token: string): Promise<void>;
-  disconnect(): void;
-  send(event: string, data: unknown): void;
-  on(event: string, handler: Function): void;
-  off(event: string, handler: Function): void;
-}
-```
-
----
-
-## 8. Navigation Architecture
-
-### 8.1 Navigation Structure
-
-```mermaid
-graph TB
-    subgraph "Navigation Graph"
-        Root[Root Navigator]
-        
-        subgraph "Auth Flow"
-            AuthStack[Auth Stack Navigator]
-            Login[Login Screen]
-            PIN[PIN Screen]
-            Biometric[Biometric Prompt]
-        end
-        
-        subgraph "Main App Flow"
-            MainTabs[Tab Navigator]
-            
-            subgraph "Products Tab"
-                ProductsStack[Products Stack]
-                ProdList[Product List]
-                ProdDetail[Product Detail]
-            end
-            
-            subgraph "Portfolio Tab"
-                PortfolioStack[Portfolio Stack]
-                PortOverview[Portfolio Overview]
-                PosDetail[Position Detail]
-            end
-            
-            subgraph "Chat Tab"
-                ChatStack[Chat Stack]
-                ChatMain[Chat Screen]
-            end
-        end
-    end
-    
-    Root --> AuthStack
-    Root --> MainTabs
-    
-    AuthStack --> Login
-    Login --> PIN
-    PIN --> Biometric
-    Biometric --> MainTabs
-    
-    MainTabs --> ProductsStack
-    MainTabs --> PortfolioStack
-    MainTabs --> ChatStack
-    
-    ProductsStack --> ProdList
-    ProdList --> ProdDetail
-    
-    PortfolioStack --> PortOverview
-    PortOverview --> PosDetail
-    
-    ChatStack --> ChatMain
-```
-
-### 8.2 Deep Linking Map
-
-```typescript
-const linkingConfig = {
-  prefixes: ['investapp://', 'https://app.investcompany.com'],
-  config: {
-    screens: {
-      Auth: {
-        screens: {
-          Login: 'login',
-        },
-      },
-      Main: {
-        screens: {
-          ProductsTab: {
-            screens: {
-              ProductList: 'products',
-              ProductDetail: 'products/:id',
-            },
-          },
-          PortfolioTab: {
-            screens: {
-              PortfolioOverview: 'portfolio',
-              PositionDetail: 'portfolio/positions/:id',
-            },
-          },
-          ChatTab: {
-            screens: {
-              ChatScreen: 'chat',
-            },
-          },
-        },
-      },
-    },
-  },
-};
-```
-
----
-
-## 9. Data Models
-
-### 9.1 Core Domain Entities
-
-```typescript
-// User Entity
 interface User {
   id: string;
   email: string;
@@ -905,17 +467,54 @@ interface User {
   phone?: string;
   managerId?: string;
   createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+#### Portfolio Entity
+```typescript
+interface Portfolio {
+  id: string;
+  userId: string;
+  totalValue: number;
+  currency: string;
+  change24h: number;
+  changePercent24h: number;
+  lastUpdated: Date;
 }
 
-// AuthTokens Entity
-interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: Date;
-  tokenType: 'Bearer';
+interface PortfolioMetrics {
+  totalValue: number;
+  totalReturn: number;
+  totalReturnPercent: number;
+  dayChange: number;
+  dayChangePercent: number;
+  positions: number;
+  lastUpdated: Date;
 }
+```
 
-// Product Entity
+#### Position Entity
+```typescript
+interface Position {
+  id: string;
+  portfolioId: string;
+  assetId: string;
+  assetName: string;
+  assetSymbol: string;
+  assetType: 'stock' | 'bond' | 'fund' | 'cash' | 'other';
+  quantity: number;
+  averagePrice: number;
+  currentPrice: number;
+  currentValue: number;
+  profitLoss: number;
+  profitLossPercent: number;
+  weight: number; // Percentage of total portfolio
+}
+```
+
+#### Product Entity
+```typescript
 interface Product {
   id: string;
   name: string;
@@ -929,44 +528,27 @@ interface Product {
   historicalReturn?: number;
   parameters: ProductParameter[];
   conditions: ProductCondition[];
+  imageUrl?: string;
 }
 
-// Category Entity
-interface Category {
+interface ProductParameter {
   id: string;
+  productId: string;
   name: string;
-  description?: string;
-  productCount: number;
+  value: string;
+  unit?: string;
 }
 
-// Portfolio Entity
-interface Portfolio {
+interface ProductCondition {
   id: string;
-  userId: string;
-  totalValue: number;
-  currency: string;
-  change24h: number;
-  changePercent24h: number;
-  lastUpdated: Date;
+  productId: string;
+  name: string;
+  description: string;
 }
+```
 
-// Position Entity
-interface Position {
-  id: string;
-  assetId: string;
-  assetName: string;
-  assetSymbol: string;
-  assetType: 'stock' | 'bond' | 'fund' | 'cash';
-  quantity: number;
-  averagePrice: number;
-  currentPrice: number;
-  currentValue: number;
-  profitLoss: number;
-  profitLossPercent: number;
-  weight: number;
-}
-
-// Message Entity
+#### Message Entity
+```typescript
 interface Message {
   id: string;
   conversationId: string;
@@ -977,226 +559,804 @@ interface Message {
   status: 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
 }
 
-// Conversation Entity
 interface Conversation {
   id: string;
+  userId: string;
   participantId: string;
   participantName: string;
+  participantAvatar?: string;
   lastMessage?: Message;
   unreadCount: number;
   updatedAt: Date;
 }
+
+type ManagerStatus = 'online' | 'offline' | 'away';
+
+interface ManagerInfo {
+  id: string;
+  name: string;
+  status: ManagerStatus;
+  lastSeen?: Date;
+  avatarUrl?: string;
+}
 ```
 
-### 9.2 Entity Relationships
+#### Auth Entity
+```typescript
+interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: Date;
+  tokenType: 'Bearer';
+}
 
-```mermaid
-erDiagram
-    User ||--o{ Portfolio : owns
-    User ||--o{ Conversation : participates
-    User ||--o| Manager : assigned
-    
-    Portfolio ||--o{ Position : contains
-    
-    Product ||--o| Category : belongs_to
-    Product ||--o{ ProductParameter : has
-    Product ||--o{ ProductCondition : has
-    
-    Conversation ||--o{ Message : contains
-    
-    User {
-        string id PK
-        string email
-        string firstName
-        string lastName
-        string phone
-        string managerId FK
-    }
-    
-    Portfolio {
-        string id PK
-        string userId FK
-        number totalValue
-        string currency
-        number change24h
-    }
-    
-    Position {
-        string id PK
-        string portfolioId FK
-        string assetId
-        number quantity
-        number currentValue
-    }
-    
-    Product {
-        string id PK
-        string name
-        string categoryId FK
-        string type
-        string riskLevel
-    }
-    
-    Message {
-        string id PK
-        string conversationId FK
-        string senderId
-        string text
-        datetime timestamp
-    }
+interface Credentials {
+  email: string;
+  password: string;
+}
+
+interface AuthState {
+  isAuthenticated: boolean;
+  user: User | null;
+  tokens: AuthTokens | null;
+  loading: boolean;
+  error: string | null;
+}
 ```
 
 ---
 
-## 10. Security Architecture
+## 5. API Design
 
-### 10.1 Authentication Architecture
+### 5.1 Endpoints Overview
 
-```mermaid
-graph TB
-    subgraph "Client App"
-        User[User]
-        LoginUI[Login UI]
-        AuthService[Auth Service]
-        TokenStorage[Secure Token Storage]
-        TokenManager[Token Manager]
-        
-        subgraph "Protected Resources"
-            API[API Requests]
-            Portfolio[Portfolio Data]
-            Chat[Chat Messages]
-        end
-    end
-    
-    subgraph "Backend"
-        AuthAPI[Auth API]
-        ResourceAPI[Resource APIs]
-        TokenValidator[Token Validator]
-    end
-    
-    User --> LoginUI
-    LoginUI --> AuthService
-    AuthService --> AuthAPI
-    AuthAPI --> AuthService
-    AuthService --> TokenStorage
-    TokenStorage --> TokenManager
-    
-    TokenManager --> API
-    API --> ResourceAPI
-    ResourceAPI --> TokenValidator
-    
-    TokenManager --> Portfolio
-    TokenManager --> Chat
+#### Authentication API
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `POST` | `/auth/login` | User login | No |
+| `POST` | `/auth/logout` | User logout | Yes |
+| `POST` | `/auth/refresh` | Refresh access token | No (refresh token) |
+| `POST` | `/auth/device-token` | Register push token | Yes |
+
+**Login Request/Response:**
+```typescript
+// POST /auth/login
+interface LoginRequest {
+  email: string;
+  password: string;
+  deviceId?: string;
+}
+
+interface LoginResponse {
+  user: User;
+  tokens: {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+  };
+}
 ```
 
-### 10.2 Token Management Flow
+#### User API
 
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/user/profile` | Get user profile | Yes |
+| `PUT` | `/user/profile` | Update profile | Yes |
+| `GET` | `/user/manager` | Get assigned manager | Yes |
+
+#### Products API
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/products` | List all products | Yes |
+| `GET` | `/products/:id` | Get product details | Yes |
+| `GET` | `/products/categories` | Get categories | Yes |
+
+**Products Request/Response:**
+```typescript
+// GET /products
+interface ProductsQuery {
+  categoryId?: string;
+  type?: 'strategy' | 'individual';
+  riskLevel?: 'low' | 'medium' | 'high';
+  page?: number;
+  limit?: number;
+}
+
+interface ProductsResponse {
+  products: Product[];
+  categories: Category[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    hasMore: boolean;
+  };
+}
+```
+
+#### Portfolio API
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/portfolio` | Get portfolio summary | Yes |
+| `GET` | `/portfolio/positions` | Get positions list | Yes |
+| `GET` | `/portfolio/positions/:id` | Get position details | Yes |
+| `GET` | `/portfolio/metrics` | Get calculated metrics | Yes |
+
+**Portfolio Response:**
+```typescript
+// GET /portfolio
+interface PortfolioResponse {
+  portfolio: Portfolio;
+  metrics: PortfolioMetrics;
+  lastUpdated: string;
+}
+
+// GET /portfolio/positions
+interface PositionsResponse {
+  positions: Position[];
+  totalValue: number;
+  lastUpdated: string;
+}
+```
+
+#### Chat API
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/chat/conversations` | Get conversations | Yes |
+| `GET` | `/chat/messages` | Get message history | Yes |
+| `POST` | `/chat/messages` | Send message | Yes |
+| `PUT` | `/chat/messages/read` | Mark messages as read | Yes |
+
+**Chat Request/Response:**
+```typescript
+// GET /chat/messages
+interface MessagesQuery {
+  conversationId: string;
+  cursor?: string; // ISO timestamp for pagination
+  limit?: number;
+  direction?: 'before' | 'after';
+}
+
+interface MessagesResponse {
+  messages: Message[];
+  hasMore: boolean;
+  nextCursor?: string;
+}
+
+// POST /chat/messages
+interface SendMessageRequest {
+  conversationId: string;
+  text: string;
+  tempId?: string; // Client-generated for correlation
+}
+
+interface SendMessageResponse {
+  message: Message;
+}
+```
+
+### 5.2 WebSocket Events
+
+**Connection:**
+```
+WSS://api.example.com/ws/chat?token={accessToken}
+```
+
+**Client → Server Events:**
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `message` | `{ text, conversationId, tempId }` | Send message |
+| `typing_start` | `{ conversationId }` | Start typing indicator |
+| `typing_stop` | `{ conversationId }` | Stop typing indicator |
+| `mark_read` | `{ conversationId, messageIds }` | Mark messages as read |
+
+**Server → Client Events:**
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `message` | `Message` | New message received |
+| `message_status` | `{ messageId, status }` | Message status update |
+| `typing` | `{ userId, conversationId }` | User typing indicator |
+| `manager_status` | `{ managerId, status }` | Manager online status |
+| `error` | `{ code, message }` | Error notification |
+
+### 5.3 Authentication
+
+#### JWT Token Structure
+```typescript
+interface AccessTokenPayload {
+  sub: string;        // User ID
+  email: string;
+  exp: number;        // Expiration timestamp
+  iat: number;        // Issued at timestamp
+  type: 'access';
+}
+
+interface RefreshTokenPayload {
+  sub: string;
+  exp: number;
+  iat: number;
+  type: 'refresh';
+  deviceId?: string;
+}
+```
+
+#### Authentication Flow
 ```mermaid
 sequenceDiagram
     participant App
-    participant TokenManager
-    participant SecureStorage
     participant API
+    participant Storage
     
-    Note over App: App startup
-    App->>TokenManager: getAccessToken()
-    TokenManager->>SecureStorage: retrieveToken()
+    App->>API: POST /auth/login
+    API-->>App: Access Token + Refresh Token
+    App->>Storage: Store tokens securely
     
-    alt Token exists and valid
-        SecureStorage-->>TokenManager: accessToken
-        TokenManager-->>App: accessToken
-    else Token expired
-        TokenManager->>TokenManager: refreshToken()
-        TokenManager->>SecureStorage: getRefreshToken()
-        SecureStorage-->>TokenManager: refreshToken
-        TokenManager->>API: POST /auth/refresh
-        API-->>TokenManager: newTokens
-        TokenManager->>SecureStorage: storeTokens(newTokens)
-        TokenManager-->>App: newAccessToken
-    else No token
-        TokenManager-->>App: null (redirect to login)
-    end
+    Note over App: Make authenticated request
+    App->>API: GET /portfolio (Bearer token)
+    API-->>App: Portfolio data
+    
+    Note over App: Token expires
+    App->>API: GET /portfolio (expired token)
+    API-->>App: 401 Unauthorized
+    
+    App->>API: POST /auth/refresh (refresh token)
+    API-->>App: New access token + refresh token
+    App->>Storage: Update tokens
+    
+    App->>API: GET /portfolio (new token)
+    API-->>App: Portfolio data
 ```
 
-### 10.3 Data Protection Layers
-
-| Layer | Protection | Implementation |
-|-------|------------|----------------|
-| **Network** | TLS 1.2+ | HTTPS for all requests |
-| **Authentication** | JWT + Refresh | Short-lived access tokens |
-| **Token Storage** | Hardware-backed | iOS Keychain / Android Keystore |
-| **PIN Storage** | Hashed | bcrypt with salt |
-| **Local Cache** | Encrypted | SQLite with SQLCipher or Realm encryption |
-| **Memory** | Sensitive data cleared | Clear on background/app lifecycle |
+#### Token Management
+| Token | Lifetime | Storage | Usage |
+|-------|----------|---------|-------|
+| **Access Token** | 15-30 min | Memory + Keychain | API authentication |
+| **Refresh Token** | 7-30 days | Keychain/Keystore | Token refresh |
 
 ---
 
-## 11. Scalability Considerations
+## 6. State Management
 
-### 11.1 Performance Optimization Strategies
-
-| Area | Strategy | Implementation |
-|------|----------|---------------|
-| **List Performance** | Virtualization | FlatList with getItemLayout |
-| **Image Loading** | Lazy loading + caching | react-native-fast-image |
-| **State Updates** | Selective subscriptions | Zustand selectors |
-| **Bundle Size** | Code splitting | Dynamic imports for features |
-| **Memory** | Object pooling | Reuse message objects in chat |
-| **Startup Time** | Lazy initialization | Defer non-critical services |
-
-### 11.2 Caching Strategy
-
-```mermaid
-graph LR
-    subgraph "Cache Layers"
-        Memory[Memory Cache<br/>Hot data]
-        Disk[Disk Cache<br/>Persistence]
-        Network[Network<br/>Fresh data]
-    end
-    
-    Request[Data Request] --> Memory
-    
-    alt Memory hit
-        Memory --> Response[Return data]
-    else Memory miss
-        Memory --> Disk
-        alt Disk hit
-            Disk --> Response
-            Disk --> Memory
-        else Disk miss
-            Disk --> Network
-            Network --> Response
-            Network --> Disk
-            Network --> Memory
-        end
-    end
-```
-
-### 11.3 Message Storage Strategy
+### 6.1 Client State Architecture
 
 ```mermaid
 graph TB
-    subgraph "Message Storage Tiers"
-        Hot[Hot Storage<br/>Recent 100 messages<br/>Memory]
-        Warm[Warm Storage<br/>Last 1000 messages<br/>Local DB]
-        Cold[Cold Storage<br/>Older messages<br/>Server API]
+    subgraph "Zustand Stores"
+        AuthStore[Auth Store<br/>isAuthenticated, user, tokens]
+        ProductStore[Product Store<br/>products, categories, filters]
+        PortfolioStore[Portfolio Store<br/>portfolio, positions, metrics]
+        ChatStore[Chat Store<br/>messages, conversations, status]
+        SyncStore[Sync Store<br/>lastSync, pending, status]
+        UIStore[UI Store<br/>theme, loading, modals]
     end
     
-    ChatOpen[Chat Screen Opened] --> Hot
+    subgraph "Persistence Layer"
+        SecureStorage[Secure Storage<br/>Keychain/Keystore]
+        LocalCache[Local Cache<br/>MMKV]
+        Database[Database<br/>WatermelonDB]
+    end
     
-    ScrollUp[User Scrolls Up] --> Warm
-    Warm --> Hot
-    
-    Older[Need older messages] --> Cold
-    Cold --> Warm
-    Cold --> Hot
+    AuthStore --> SecureStorage
+    ProductStore --> LocalCache
+    PortfolioStore --> LocalCache
+    ChatStore --> Database
+    SyncStore --> LocalCache
+```
+
+### 6.2 Store Definitions
+
+#### Auth Store
+```typescript
+interface AuthStore {
+  // State
+  isAuthenticated: boolean;
+  user: User | null;
+  tokens: AuthTokens | null;
+  loading: boolean;
+  error: string | null;
+  
+  // Actions
+  login: (credentials: Credentials) => Promise<void>;
+  logout: () => Promise<void>;
+  refreshTokens: () => Promise<void>;
+  setBiometricEnabled: (enabled: boolean) => void;
+  setPinEnabled: (enabled: boolean) => void;
+  clearError: () => void;
+}
+
+// Implementation
+export const useAuthStore = create<AuthStore>((set, get) => ({
+  isAuthenticated: false,
+  user: null,
+  tokens: null,
+  loading: false,
+  error: null,
+  
+  login: async (credentials) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await authService.login(credentials);
+      await tokenStorage.storeTokens(response.tokens);
+      set({ 
+        isAuthenticated: true, 
+        user: response.user,
+        tokens: response.tokens,
+        loading: false 
+      });
+    } catch (error) {
+      set({ error: error.message, loading: false });
+    }
+  },
+  
+  logout: async () => {
+    await tokenStorage.clearTokens();
+    set({ 
+      isAuthenticated: false, 
+      user: null, 
+      tokens: null 
+    });
+  },
+  
+  // ... other actions
+}));
+```
+
+#### Product Store
+```typescript
+interface ProductStore {
+  // State
+  products: Product[];
+  categories: Category[];
+  selectedProduct: Product | null;
+  filters: ProductFilters;
+  loading: boolean;
+  error: string | null;
+  
+  // Actions
+  fetchProducts: () => Promise<void>;
+  fetchProductDetail: (id: string) => Promise<void>;
+  setFilters: (filters: ProductFilters) => void;
+  clearFilters: () => void;
+  selectProduct: (product: Product | null) => void;
+}
+```
+
+#### Portfolio Store
+```typescript
+interface PortfolioStore {
+  // State
+  portfolio: Portfolio | null;
+  positions: Position[];
+  metrics: PortfolioMetrics | null;
+  loading: boolean;
+  error: string | null;
+  lastUpdated: Date | null;
+  
+  // Actions
+  fetchPortfolio: () => Promise<void>;
+  fetchPositions: () => Promise<void>;
+  calculateMetrics: () => void;
+  refresh: () => Promise<void>;
+}
+```
+
+#### Chat Store
+```typescript
+interface ChatStore {
+  // State
+  conversations: Conversation[];
+  activeConversation: Conversation | null;
+  messages: Record<string, Message[]>; // conversationId -> messages
+  managerStatus: ManagerStatus;
+  unreadCount: number;
+  loading: boolean;
+  sending: boolean;
+  error: string | null;
+  connected: boolean;
+  
+  // Actions
+  connect: () => Promise<void>;
+  disconnect: () => void;
+  fetchMessages: (conversationId: string) => Promise<void>;
+  sendMessage: (conversationId: string, text: string) => Promise<void>;
+  addMessage: (message: Message) => void;
+  markAsRead: (conversationId: string) => void;
+  updateManagerStatus: (status: ManagerStatus) => void;
+}
+```
+
+#### Sync Store
+```typescript
+interface SyncStore {
+  // State
+  lastSync: Date | null;
+  syncStatus: 'idle' | 'syncing' | 'error' | 'offline';
+  pendingOperations: PendingOperation[];
+  
+  // Actions
+  sync: () => Promise<void>;
+  addToQueue: (operation: PendingOperation) => void;
+  processQueue: () => Promise<void>;
+  setSyncStatus: (status: SyncStatus) => void;
+  clearQueue: () => void;
+}
+
+interface PendingOperation {
+  id: string;
+  type: 'sendMessage' | 'markRead' | 'updateProfile';
+  payload: unknown;
+  timestamp: Date;
+  retries: number;
+}
+```
+
+### 6.3 Server State
+
+Server state is managed through React Query / TanStack Query pattern (optional integration):
+
+```typescript
+// Query hooks for server state
+const useProducts = () => useQuery({
+  queryKey: ['products'],
+  queryFn: () => productAdapter.getProducts(),
+  staleTime: 5 * 60 * 1000, // 5 minutes
+});
+
+const usePortfolio = () => useQuery({
+  queryKey: ['portfolio'],
+  queryFn: () => portfolioAdapter.getPortfolio(),
+  staleTime: 1 * 60 * 1000, // 1 minute
+});
+
+// Mutation for sending messages
+const useSendMessage = () => useMutation({
+  mutationFn: (message: NewMessage) => chatAdapter.sendMessage(message),
+  onMutate: async (message) => {
+    // Optimistic update
+    await queryClient.cancelQueries(['messages']);
+    const previous = queryClient.getQueryData(['messages']);
+    queryClient.setQueryData(['messages'], (old) => [...old, message]);
+    return { previous };
+  },
+  onError: (err, message, context) => {
+    // Rollback on error
+    queryClient.setQueryData(['messages'], context.previous);
+  },
+});
 ```
 
 ---
 
-## 12. Technology Stack Summary
+## 7. Security
 
-### 12.1 Core Dependencies
+### 7.1 Authentication & Authorization
+
+#### Authentication Methods
+
+| Method | Use Case | Security Level |
+|--------|----------|----------------|
+| **Email + Password** | Primary login | High (server validation) |
+| **Biometric** | Quick re-entry | High (hardware-backed) |
+| **PIN Code** | Quick re-entry (fallback) | Medium (local validation) |
+
+#### Authentication Flow
+```mermaid
+graph TB
+    Start[App Launch] --> CheckToken{Token Valid?}
+    CheckToken -->|Yes| Biometric{Biometric<br/>Enabled?}
+    CheckToken -->|No| Login[Show Login Screen]
+    
+    Biometric -->|Yes| PromptBiometric[Prompt Biometric]
+    Biometric -->|No| PIN{PIN<br/>Enabled?}
+    
+    PromptBiometric -->|Success| MainApp[Main App]
+    PromptBiometric -->|Fail| PIN
+    
+    PIN -->|Yes| PromptPIN[Prompt PIN]
+    PIN -->|No| MainApp
+    
+    PromptPIN -->|Success| MainApp
+    PromptPIN -->|Fail| Login
+    
+    Login -->|Success| StoreTokens[Store Tokens]
+    StoreTokens --> MainApp
+    Login -->|Fail| ShowError[Show Error]
+```
+
+#### Token Security
+
+| Aspect | Implementation |
+|--------|----------------|
+| **Storage** | iOS Keychain / Android Keystore (hardware-backed) |
+| **Access Token Lifetime** | 15-30 minutes |
+| **Refresh Token Lifetime** | 7-30 days |
+| **Refresh Token Rotation** | New refresh token on each refresh |
+| **Token Binding** | Device ID in refresh token |
+| **Revocation** | Server-side blacklist for compromised tokens |
+
+### 7.2 Data Protection
+
+#### Data Classification
+
+| Data Type | Classification | Storage | Protection |
+|-----------|---------------|---------|------------|
+| **Auth Tokens** | Critical | Keychain/Keystore | Hardware encryption |
+| **PIN Code** | Critical | Keychain/Keystore | bcrypt hash |
+| **Portfolio Data** | Sensitive | Local DB | Encrypted at rest |
+| **Messages** | Sensitive | Local DB | Encrypted at rest |
+| **User Profile** | Sensitive | Local DB | Encrypted at rest |
+| **Products** | Public | Local Cache | No encryption needed |
+
+#### Protection Mechanisms
+
+| Layer | Mechanism | Implementation |
+|-------|-----------|----------------|
+| **Transport** | TLS 1.2+ | HTTPS for all API calls |
+| **Transport** | Certificate Pinning | Public key pinning for API |
+| **Storage** | Encryption | SQLCipher / Realm encryption |
+| **Storage** | Keychain/Keystore | Hardware-backed secure storage |
+| **Memory** | Sensitive data clearing | Clear on app background |
+| **Code** | Obfuscation | ProGuard (Android), stripping (iOS) |
+
+#### Security Best Practices
+
+```typescript
+// Sensitive data handling
+class SecureDataManager {
+  private sensitiveData: Map<string, string> = new Map();
+  
+  // Store sensitive data
+  async storeSecure(key: string, value: string): Promise<void> {
+    await Keychain.setGenericPassword('app', value, {
+      service: key,
+      accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
+    });
+  }
+  
+  // Retrieve sensitive data
+  async retrieveSecure(key: string): Promise<string | null> {
+    const result = await Keychain.getGenericPassword({ service: key });
+    return result ? result.password : null;
+  }
+  
+  // Clear sensitive data on app background
+  clearSensitiveMemory(): void {
+    this.sensitiveData.clear();
+  }
+  
+  // Hash PIN before storage
+  async hashPin(pin: string): Promise<string> {
+    const salt = await this.getOrCreateSalt();
+    return bcrypt.hash(pin, salt);
+  }
+}
+```
+
+### 7.3 Security Checklist
+
+| Item | Status | Notes |
+|------|--------|-------|
+| TLS 1.2+ for all network calls | ✅ Required | Enforce in API client |
+| Certificate pinning | ✅ Required | Implement for API endpoints |
+| Secure token storage | ✅ Required | Keychain/Keystore only |
+| No sensitive data in logs | ✅ Required | Strip in production |
+| Input validation | ✅ Required | Zod schemas |
+| Root/jailbreak detection | ⚠️ Optional | Warn user |
+| Screenshot blocking | ⚠️ Optional | Sensitive screens only |
+| Biometric fallback | ✅ Required | Device passcode |
+
+---
+
+## 8. Deployment
+
+### 8.1 Environment Overview
+
+```mermaid
+graph LR
+    subgraph "Development"
+        DevLocal[Local Development<br/>iOS Simulator<br/>Android Emulator]
+        DevAPI[Dev API Server]
+    end
+    
+    subgraph "Staging"
+        StagingBuild[TestFlight<br/>Internal Test<br/>Play Console Internal]
+        StagingAPI[Staging API]
+    end
+    
+    subgraph "Production"
+        ProdBuild[App Store<br/>Google Play]
+        ProdAPI[Production API]
+    end
+    
+    DevLocal --> DevAPI
+    StagingBuild --> StagingAPI
+    ProdBuild --> ProdAPI
+```
+
+### 8.2 Build Configuration
+
+| Environment | Bundle ID | API URL | Features |
+|-------------|-----------|---------|----------|
+| **Development** | `com.investapp.dev` | `https://api-dev.example.com` | Debug menu, verbose logging |
+| **Staging** | `com.investapp.staging` | `https://api-staging.example.com` | Analytics enabled |
+| **Production** | `com.investapp` | `https://api.example.com` | Full security, no debug |
+
+### 8.3 CI/CD Pipeline
+
+```mermaid
+graph LR
+    Code[Code Push] --> Lint[ESLint + Prettier]
+    Lint --> TypeCheck[TypeScript Check]
+    TypeCheck --> UnitTests[Unit Tests]
+    UnitTests --> Build[Build Bundle]
+    Build --> E2ETests[E2E Tests]
+    E2ETests --> Deploy
+    
+    subgraph "iOS"
+        Deploy --> TestFlight[TestFlight]
+        TestFlight --> AppStore[App Store]
+    end
+    
+    subgraph "Android"
+        Deploy --> PlayConsole[Play Console]
+        PlayConsole --> PlayStore[Google Play]
+    end
+```
+
+### 8.4 Release Process
+
+| Phase | Action | Tool |
+|-------|--------|------|
+| **1. Code Quality** | Lint, format, type check | ESLint, Prettier, tsc |
+| **2. Testing** | Unit tests, E2E tests | Jest, Detox |
+| **3. Build** | Generate bundles | React Native CLI |
+| **4. iOS Deploy** | Upload to TestFlight | Fastlane, Xcode |
+| **5. Android Deploy** | Upload to Play Console | Fastlane, Gradle |
+| **6. Review** | App store review | Manual |
+| **7. Release** | Production rollout | Phased rollout |
+
+### 8.5 Monitoring & Observability
+
+| Aspect | Tool | Purpose |
+|--------|------|---------|
+| **Crash Reporting** | Sentry / Crashlytics | Track and fix crashes |
+| **Analytics** | Firebase Analytics | User behavior, funnels |
+| **Performance** | Firebase Performance | App performance metrics |
+| **Logging** | Sentry | Centralized logging |
+| **APM** | Datadog / New Relic | Backend monitoring |
+
+---
+
+## 9. Technical Standards
+
+### 9.1 Code Organization
+
+```
+src/
+├── view/                    # View Layer
+│   ├── screens/             # Screen components
+│   │   ├── auth/            # Login, PIN, Biometric screens
+│   │   ├── products/        # Product list, detail screens
+│   │   ├── portfolio/       # Portfolio, position screens
+│   │   ├── chat/            # Chat screens
+│   │   └── profile/         # Profile, settings screens
+│   ├── components/          # Reusable UI components
+│   │   ├── common/          # Button, Input, Card, etc.
+│   │   ├── products/        # Product-specific components
+│   │   ├── portfolio/       # Portfolio-specific components
+│   │   └── chat/            # Chat-specific components
+│   ├── navigation/          # Navigation configuration
+│   │   ├── AppNavigator.tsx
+│   │   ├── AuthNavigator.tsx
+│   │   └── TabNavigator.tsx
+│   └── hooks/               # UI-specific hooks
+│       ├── useAuth.ts
+│       ├── useProducts.ts
+│       └── usePortfolio.ts
+├── domain/                  # Domain Layer
+│   ├── entities/            # Domain models/types
+│   │   ├── User.ts
+│   │   ├── Product.ts
+│   │   ├── Portfolio.ts
+│   │   └── Message.ts
+│   ├── services/            # Business logic services
+│   │   ├── AuthService.ts
+│   │   ├── ProductService.ts
+│   │   ├── PortfolioService.ts
+│   │   └── ChatService.ts
+│   ├── usecases/            # Use case orchestrators
+│   │   ├── LoginUseCase.ts
+│   │   └── CalculateMetricsUseCase.ts
+│   ├── calculators/         # Financial calculations
+│   │   └── PortfolioCalculator.ts
+│   └── utils/               # Domain utilities
+│       ├── formatters.ts
+│       └── validators.ts
+├── adapters/                # Adapter Layer
+│   ├── api/                 # REST API clients
+│   │   ├── ApiClient.ts
+│   │   ├── AuthAdapter.ts
+│   │   ├── ProductAdapter.ts
+│   │   └── ChatAdapter.ts
+│   ├── websocket/           # WebSocket clients
+│   │   └── ChatWebSocket.ts
+│   ├── storage/             # Local storage adapters
+│   │   ├── SecureStorage.ts
+│   │   ├── CacheAdapter.ts
+│   │   └── MessageStorage.ts
+│   └── platform/            # Platform integrations
+│       ├── BiometricAdapter.ts
+│       ├── NetworkAdapter.ts
+│       └── NotificationAdapter.ts
+├── stores/                  # Zustand state stores
+│   ├── authStore.ts
+│   ├── productStore.ts
+│   ├── portfolioStore.ts
+│   ├── chatStore.ts
+│   └── syncStore.ts
+├── shared/                  # Shared utilities
+│   ├── types/               # Shared TypeScript types
+│   ├── constants/           # App constants
+│   │   ├── ApiConstants.ts
+│   │   └── AppConstants.ts
+│   └── utils/               # Shared utilities
+│       ├── Logger.ts
+│       └── ErrorHandler.ts
+├── db/                      # Database schemas
+│   ├── schema.ts
+│   └── migrations/
+└── App.tsx                  # App entry point
+```
+
+### 9.2 Naming Conventions
+
+| Type | Convention | Example |
+|------|------------|---------|
+| **Components** | PascalCase | `ProductCard.tsx` |
+| **Screens** | PascalCase + Screen | `PortfolioScreen.tsx` |
+| **Hooks** | camelCase + use | `useAuth.ts` |
+| **Services** | PascalCase + Service | `AuthService.ts` |
+| **Adapters** | PascalCase + Adapter | `ProductAdapter.ts` |
+| **Stores** | camelCase + Store | `authStore.ts` |
+| **Types/Interfaces** | PascalCase | `Portfolio`, `Message` |
+| **Constants** | SCREAMING_SNAKE | `API_TIMEOUT_MS` |
+| **Files** | PascalCase for components | `Button.tsx` |
+| **Folders** | kebab-case | `product-list/` |
+
+### 9.3 TypeScript Standards
+
+```typescript
+// tsconfig.json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
+  }
+}
+```
+
+**Standards:**
+- No `any` types (use `unknown` if necessary)
+- Explicit return types for public functions
+- Interface for object shapes
+- Type for unions, primitives, and utility types
+- Zod for runtime validation
+
+---
+
+## 10. Technology Stack
+
+### 10.1 Core Dependencies
 
 | Category | Package | Version | Purpose |
 |----------|---------|---------|---------|
@@ -1205,6 +1365,7 @@ graph TB
 | **State** | zustand | 4.4+ | Global state management |
 | **Navigation** | @react-navigation/native | 6.x | Screen navigation |
 | **Styling** | nativewind | 4.x | Tailwind CSS for RN |
+| **UI Components** | shadcn/ui | latest | Component library |
 | **HTTP** | axios | 1.6+ | API requests |
 | **WebSocket** | socket.io-client | 4.x | Real-time chat |
 | **Secure Storage** | react-native-keychain | 8.x | Token storage |
@@ -1214,19 +1375,23 @@ graph TB
 | **Network** | @react-native-community/netinfo | 11.x | Connection monitoring |
 | **Forms** | react-hook-form | 7.x | Form handling |
 | **Validation** | zod | 3.x | Schema validation |
+| **Animations** | react-native-reanimated | 3.x | Smooth animations |
 
-### 12.2 Development Dependencies
+### 10.2 Development Dependencies
 
 | Category | Package | Purpose |
 |----------|---------|---------|
-| **Testing** | jest + @testing-library/react-native | Unit and component tests |
-| **E2E** | detox | End-to-end testing |
-| **Linting** | eslint + prettier | Code quality |
+| **Testing** | jest | Unit tests |
+| **Testing** | @testing-library/react-native | Component tests |
+| **E2E** | detox | End-to-end tests |
+| **Linting** | eslint | Code quality |
+| **Formatting** | prettier | Code formatting |
 | **Types** | @types/* | TypeScript definitions |
+| **Build** | @react-native-community/cli | Build tools |
 
 ---
 
-## 13. Glossary
+## 11. Glossary
 
 | Term | Definition |
 |------|------------|
@@ -1240,70 +1405,51 @@ graph TB
 | **Service** | Domain logic coordinator |
 | **Deep Link** | URL scheme to navigate directly to app content |
 | **Token** | JWT authentication credential |
+| **WatermelonDB** | Local-first database for React Native |
+| **Zustand** | Lightweight state management library |
+| **NativeWind** | Tailwind CSS for React Native |
 
 ---
 
-## 14. Appendix
+## 12. Appendix
 
-### A. File Structure (Complete)
-
-```
-investment-app/
-├── src/
-│   ├── view/
-│   │   ├── screens/
-│   │   │   ├── auth/
-│   │   │   ├── products/
-│   │   │   ├── portfolio/
-│   │   │   ├── chat/
-│   │   │   └── profile/
-│   │   ├── components/
-│   │   │   ├── common/
-│   │   │   ├── products/
-│   │   │   ├── portfolio/
-│   │   │   └── chat/
-│   │   ├── navigation/
-│   │   └── hooks/
-│   ├── domain/
-│   │   ├── entities/
-│   │   ├── services/
-│   │   ├── usecases/
-│   │   ├── calculators/
-│   │   └── utils/
-│   ├── adapters/
-│   │   ├── api/
-│   │   ├── websocket/
-│   │   ├── storage/
-│   │   └── platform/
-│   ├── stores/
-│   │   ├── authStore.ts
-│   │   ├── productStore.ts
-│   │   ├── portfolioStore.ts
-│   │   ├── chatStore.ts
-│   │   └── syncStore.ts
-│   ├── shared/
-│   │   ├── types/
-│   │   ├── constants/
-│   │   └── utils/
-│   └── App.tsx
-├── android/
-├── ios/
-├── package.json
-├── tsconfig.json
-└── README.md
-```
-
-### B. Key Architectural Decisions
+### A. Key Architectural Decisions
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Architecture Pattern | Clean Architecture | Separation of concerns, testability |
-| State Management | Zustand | Minimal boilerplate, excellent TS support |
-| Local Database | WatermelonDB | Performance, lazy loading, observability |
-| WebSocket | Socket.io | Reliability, reconnection handling |
-| Styling | NativeWind | Developer experience, consistency |
+| **Architecture Pattern** | Clean Architecture (3-Layer) | Separation of concerns, testability, maintainability |
+| **State Management** | Zustand | Minimal boilerplate, excellent TypeScript support, small bundle size |
+| **Local Database** | WatermelonDB | Performance, lazy loading, observability, offline-first |
+| **WebSocket** | Socket.io | Reliability, automatic reconnection, fallback transports |
+| **Styling** | NativeWind | Developer experience, Tailwind familiarity, consistency |
+| **Navigation** | React Navigation 6.x | Industry standard, deep linking support, type-safe |
+| **Secure Storage** | Keychain/Keystore | Hardware-backed security, platform standard |
+
+### B. Performance Targets
+
+| Metric | Target | Maximum |
+|--------|--------|---------|
+| App cold start | < 2s | < 3s |
+| App warm start | < 1s | < 2s |
+| Screen transition | < 300ms | < 500ms |
+| API response (cached) | < 100ms | < 200ms |
+| API response (network) | < 1s | < 3s |
+| Message send (optimistic) | < 50ms | < 100ms |
+| List scroll | 60 FPS | 30 FPS |
+
+### C. Security Requirements
+
+| Requirement | Implementation |
+|-------------|----------------|
+| TLS 1.2+ | Enforced on all API calls |
+| Certificate Pinning | Public key pinning |
+| Token Storage | Hardware-backed secure storage |
+| PIN Storage | bcrypt hash |
+| Data at Rest | Encrypted database |
+| Data in Transit | TLS encryption |
 
 ---
 
-*Document generated by System Architect Agent*  
-*Version 1.0 | Date: 2026-04-17*
+*System Design Document - Version 1.0*  
+*Created by System Architect Agent*  
+*Date: 2026-04-17*
