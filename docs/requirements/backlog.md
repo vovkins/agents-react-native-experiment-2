@@ -1,7 +1,7 @@
 # Product Backlog (Epic Level)
 
 **Проект:** Мобильное приложение для клиентов управляющей компании  
-**Статус:** Draft  
+**Статус:** Prioritized  
 **Дата:** 2026-04-17  
 
 ---
@@ -10,6 +10,7 @@
 
 **Приоритет:** P0 (Must Have)  
 **MoSCoW:** Must Have  
+**Milestone:** MVP v1.0  
 
 **Описание:**  
 Система аутентификации и онбординга клиентов. Позволяет пользователям безопасно входить в приложение и получить доступ к своим персональным данным. Критически важна для финансового приложения с чувствительными данными.
@@ -22,12 +23,15 @@
 
 **Зависимости:** Нет (фундаментальный эпик)
 
+**GitHub Issue:** [#239](https://github.com/vovkins/agents-react-native-experiment-2/issues/239)
+
 ---
 
 ## Epic 2: Product Showcase (Витрина продуктов)
 
 **Приоритет:** P0 (Must Have)  
 **MoSCoW:** Must Have  
+**Milestone:** MVP v1.0  
 
 **Описание:**  
 Экран витрины инвестиционных продуктов управляющей компании. Клиенты могут просматривать стратегии доверительного управления и продукты индивидуального доверительного управления с детальной информацией о каждом.
@@ -40,12 +44,15 @@
 
 **Зависимости:** Epic 1 (Authentication & Onboarding)
 
+**GitHub Issue:** [#240](https://github.com/vovkins/agents-react-native-experiment-2/issues/240)
+
 ---
 
 ## Epic 3: Portfolio Dashboard (Портфель активов)
 
 **Приоритет:** P0 (Must Have)  
 **MoSCoW:** Must Have  
+**Milestone:** MVP v1.0  
 
 **Описание:**  
 Экран просмотра текущего портфеля активов клиента под управлением. Отображает персональные финансовые данные клиента, состав портфеля и ключевые показатели.
@@ -58,12 +65,15 @@
 
 **Зависимости:** Epic 1 (Authentication & Onboarding)
 
+**GitHub Issue:** [#241](https://github.com/vovkins/agents-react-native-experiment-2/issues/241)
+
 ---
 
 ## Epic 4: Chat with Manager (Чат с менеджером)
 
 **Приоритет:** P0 (Must Have)  
 **MoSCoW:** Must Have  
+**Milestone:** MVP v1.0  
 
 **Описание:**  
 In-app чат для коммуникации клиента с персональным менеджером. Позволяет клиентам общаться со своим управляющим напрямую через приложение без использования сторонних мессенджеров.
@@ -76,12 +86,15 @@ In-app чат для коммуникации клиента с персонал
 
 **Зависимости:** Epic 1 (Authentication & Onboarding)
 
+**GitHub Issue:** [#242](https://github.com/vovkins/agents-react-native-experiment-2/issues/242)
+
 ---
 
 ## Epic 5: Navigation & App Structure
 
 **Приоритет:** P0 (Must Have)  
 **MoSCoW:** Must Have  
+**Milestone:** MVP v1.0  
 
 **Описание:**  
 Навигационная структура приложения с тремя основными разделами: Витрина, Портфель, Чат. Tab-based навигация для удобного переключения между экранами.
@@ -94,12 +107,15 @@ In-app чат для коммуникации клиента с персонал
 
 **Зависимости:** Epic 1 (Authentication & Onboarding)
 
+**GitHub Issue:** [#243](https://github.com/vovkins/agents-react-native-experiment-2/issues/243)
+
 ---
 
 ## Epic 6: Data Synchronization & Offline Support
 
 **Приоритет:** P2 (Should Have)  
 **MoSCoW:** Should Have  
+**Milestone:** v1.1  
 
 **Описание:**  
 Синхронизация данных с бэкендом и поддержка офлайн-режима. Кэширование данных для работы без постоянного интернет-соединения.
@@ -112,12 +128,15 @@ In-app чат для коммуникации клиента с персонал
 
 **Зависимости:** Epic 2, Epic 3, Epic 4
 
+**GitHub Issue:** [#244](https://github.com/vovkins/agents-react-native-experiment-2/issues/244)
+
 ---
 
 ## Epic 7: Push Notifications
 
 **Приоритет:** P2 (Should Have)  
 **MoSCoW:** Should Have  
+**Milestone:** v1.1  
 
 **Описание:**  
 Система push-уведомлений для информирования клиентов о важных событиях: новые сообщения от менеджера, изменения в портфеле, обновления продуктов.
@@ -130,12 +149,15 @@ In-app чат для коммуникации клиента с персонал
 
 **Зависимости:** Epic 4 (Chat with Manager)
 
+**GitHub Issue:** [#245](https://github.com/vovkins/agents-react-native-experiment-2/issues/245)
+
 ---
 
 ## Epic 8: User Profile & Settings
 
 **Приоритет:** P3 (Could Have)  
 **MoSCoW:** Could Have  
+**Milestone:** v1.2  
 
 **Описание:**  
 Экран профиля пользователя и настроек приложения. Позволяет клиентам управлять своими настройками, уведомлениями и безопасностью.
@@ -148,17 +170,37 @@ In-app чат для коммуникации клиента с персонал
 
 **Зависимости:** Epic 1 (Authentication & Onboarding)
 
+**GitHub Issue:** [#246](https://github.com/vovkins/agents-react-native-experiment-2/issues/246)
+
 ---
 
 ## Приоритизация (MoSCoW)
 
-| Приоритет | Эпики | Описание |
-|-----------|-------|----------|
-| **P0 - Must Have** | Epic 1, 2, 3, 4, 5 | Критически важные функции MVP |
-| **P1 - Should Have** | - | Важные функции для полной версии |
-| **P2 - Should Have** | Epic 6, 7 | Улучшения UX и надежности |
-| **P3 - Could Have** | Epic 8 | Желательные функции |
-| **Won't Have** | - | За рамками текущей итерации |
+| Приоритет | Milestone | Эпики | Описание |
+|-----------|-----------|-------|----------|
+| **P0 - Must Have** | MVP v1.0 | Epic 1, 2, 3, 4, 5 | Критически важные функции MVP |
+| **P1 - Should Have** | - | - | Резерв для новых требований |
+| **P2 - Should Have** | v1.1 | Epic 6, 7 | Улучшения UX и надежности |
+| **P3 - Could Have** | v1.2 | Epic 8 | Желательные функции |
+| **Won't Have** | - | - | За рамками текущей итерации |
+
+---
+
+## Roadmap по Milestone'ам
+
+### MVP v1.0 (P0 - Must Have)
+- Epic 1: Authentication & Onboarding
+- Epic 2: Product Showcase
+- Epic 3: Portfolio Dashboard
+- Epic 4: Chat with Manager
+- Epic 5: Navigation & App Structure
+
+### v1.1 (P2 - Should Have)
+- Epic 6: Data Synchronization & Offline Support
+- Epic 7: Push Notifications
+
+### v1.2 (P3 - Could Have)
+- Epic 8: User Profile & Settings
 
 ---
 
@@ -172,4 +214,4 @@ In-app чат для коммуникации клиента с персонал
 
 ---
 
-*Сгенерировано PM Agent*
+*Обновлено PM Agent*
